@@ -75,7 +75,7 @@ hasCondaBlosc () {
 
 echo "Installing into $INSTALL_DIR"
 
-isMac12="1"
+isMac12="0"
 # check for operating system
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   echo "Assuming on Linux operating system"
