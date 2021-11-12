@@ -14,7 +14,7 @@ buildN5Script() {
     echo '' >> $scriptName
     echo "JAR=\$HOME/.m2/repository/org/janelia/saalfeldlab/n5-utils/${VERSION}/n5-utils-${VERSION}.jar" >> $scriptName
     echo 'java \' >> $scriptName
-    if [[ ! -z $JNA ]]; then echo $JNA; fi >> $scriptName
+    if [[ ! -z $JNA ]]; then echo "$JNA"; fi >> $scriptName
     echo "  -Xmx${MEM}g \\" >> $scriptName
     if [[ $(java -version 2>&1 | grep version) =~ 1.8 ]]
         then
@@ -75,7 +75,7 @@ hasCondaBlosc () {
 
 echo "Installing into $INSTALL_DIR"
 
-isMac12="0"
+isMac12="1"
 # check for operating system
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   echo "Assuming on Linux operating system"
@@ -106,17 +106,17 @@ then
 
     if [[ ! -z $FIJI_DIR ]];
     then
-        JNA_LINE="-Djna.library.path=\"${FIJI_DIR}/lib/macosx\""
+        JNA_LINE="-Djna.library.path=\"${FIJI_DIR}/lib/macosx\" \\"
     else
         hasHomebrewBlosc
         if [[ ! -z $RESULTPATH ]]
         then
-            JNA_LINE="-Djna.library.path=\"${RESULTPATH}\""
+            JNA_LINE="-Djna.library.path=\"${RESULTPATH}\" \\"
         else
             hasCondaBlosc
             if [[ ! -z $RESULTPATH ]]
             then
-                JNA_LINE="-Djna.library.path=\"${RESULTPATH}\""
+                JNA_LINE="-Djna.library.path=\"${RESULTPATH}/lib\" \\"
             fi
         fi
     fi
@@ -130,16 +130,16 @@ echo $JNA_LINE
 _JAVA_OPTIONS=-Djdk.net.URLClassPath.disableClassPathURLCheck=true mvn clean install
 mvn -Dmdep.outputFile=cp.txt -Dmdep.includeScope=runtime dependency:build-classpath
 
-buildN5Script 'org.janelia.saalfeldlab.View' n5-view
+buildN5Script 'org.janelia.saalfeldlab.View' n5-view "$JNA_LINE"
 chmod a+x n5-view
 
-buildN5Script 'org.janelia.saalfeldlab.cosem.ViewCosem' n5-view-cosem
+buildN5Script 'org.janelia.saalfeldlab.cosem.ViewCosem' n5-view-cosem "$JNA_LINE"
 chmod a+x n5-view-cosem
 
-buildN5Script 'org.janelia.saalfeldlab.Copy' n5-copy
+buildN5Script 'org.janelia.saalfeldlab.Copy' n5-copy "$JNA_LINE"
 chmod a+x n5-copy
 
-buildN5Script 'org.janelia.saalfeldlab.Equals' n5-equals
+buildN5Script 'org.janelia.saalfeldlab.Equals' n5-equals "$JNA_LINE"
 chmod a+x n5-equals
 
 rm cp.txt
