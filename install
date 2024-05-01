@@ -86,8 +86,9 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   MEM=$(sysctl hw.memsize | grep hw.memsize | sed s/hw.memsize://g)
   MEM=$(($MEM/2/1024/1024/1024))
 
-  macosVer=$(sw_vers | grep -Eo '[0-9]+\.[0-9]+\.[0-9]+')
-  if [[ $macosVer =~ ^12\..* ]]
+  macosVer=$(sw_vers -productVersion)
+  major=${macosVer%%.*}
+  if [ $major -ge 12 ];
   then
     isMac12="1"
   fi
