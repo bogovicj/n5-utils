@@ -14,7 +14,7 @@ buildN5Script() {
     echo '' >> $scriptName
     echo "JAR=\$HOME/.m2/repository/org/janelia/saalfeldlab/n5-utils/${VERSION}/n5-utils-${VERSION}.jar" >> $scriptName
     echo 'java \' >> $scriptName
-    if [[ ! -z $JNA ]]; then echo "$JNA"; fi >> $scriptName
+    if [[ ! -z $JNA ]]; then echo "  $JNA"; fi >> $scriptName
     echo "  -Xmx${MEM}g \\" >> $scriptName
     if [[ $(java -version 2>&1 | grep version) =~ 1.8 ]]
         then
@@ -36,11 +36,11 @@ hasHomebrewBlosc() {
         hasBlosc="$?"
         if [[ $hasBlosc == "0" ]]
         then
-            echo "success"
             cellarPath=$(dirname $(brew --cellar c-blosc))
             RESULTPATH=$(dirname $(find $cellarPath -name 'libblosc.dylib'))
+            echo "Found c-blosc installed with Homebrew at $RESULTPATH"
         else
-            echo "c-blosc not found, install with:"
+            echo "c-blosc not found, install it with:"
             echo "  brew install c-blosc"
         fi
     else
@@ -54,27 +54,26 @@ hasCondaBlosc () {
     hasConda=$(command -v conda)
     if [ ! -z $hasConda ]
     then
-        echo "conda found"
-        echo "checking for blosc"
+        echo "Found conda"
         conda info | grep 'active environment'
         condaHasBlosc=$(conda list | grep blosc)
         if [[ ! -z $condaHasBlosc ]]
         then
-            echo "success"
             RESULTPATH=$(conda info | grep 'active env location' | sed 's/.*:\s*//g')
+            echo "Found blosc installed with conda at $RESULTPATH"
         else
             echo "blosc not found, install with:"
             echo "  conda install blosc"
         fi
     else
-        echo "no conda found"
+        echo "No conda found"
     fi
 }
 
 
 echo "Installing into $INSTALL_DIR"
 
-isMac12="0"
+isMac12OrGreater="0"
 # check for operating system
 if [[ "$OSTYPE" == "linux-gnu" ]]; then
   echo "Assuming on Linux operating system"
@@ -90,7 +89,7 @@ elif [[ "$OSTYPE" == "darwin"* ]]; then
   major=${macosVer%%.*}
   if [ $major -ge 12 ];
   then
-    isMac12="1"
+    isMac12OrGreater="1"
   fi
 
 else
@@ -100,10 +99,8 @@ fi
 
 JNA_LINE=""
 ## Locate blosc on mac12
-if [[ $isMac12 == "1" ]]
+if [[ $isMac12OrGreater == "1" ]]
 then
-    echo "looking"
-
     if [[ ! -z $FIJI_DIR ]];
     then
         JNA_LINE="-Djna.library.path=\"${FIJI_DIR}/lib/macosx\" \\"
@@ -121,9 +118,6 @@ then
         fi
     fi
 fi
-
-echo $JNA_LINE
-
 
 # mvn clean install
 # temporary workaround for openjdk plus surefire bug
