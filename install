@@ -37,9 +37,8 @@ hasHomebrewBlosc() {
         if [[ $hasBlosc == "0" ]]
         then
             echo "success"
-            #tmp=$(brew --cellar c-blosc)
             cellarPath=$(dirname $(brew --cellar c-blosc))
-            RESULTPATH=$(dirname $(find $cellarPath -name 'libblosc*'))
+            RESULTPATH=$(dirname $(find $cellarPath -name 'libblosc.dylib'))
         else
             echo "c-blosc not found, install with:"
             echo "  brew install c-blosc"
